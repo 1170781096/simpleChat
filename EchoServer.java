@@ -3,6 +3,8 @@
 // license found at www.lloseng.com 
 
 import java.io.*;
+
+import common.ChatIF;
 import ocsf.server.*;
 
 /**
@@ -18,7 +20,11 @@ import ocsf.server.*;
 public class EchoServer extends AbstractServer 
 {
   //Class variables *************************************************
-  
+   ChatIF serverUI;
+   boolean ifClosed = false;
+   String ClientInfo;
+   
+   
   /**
    * The default port to listen on.
    */
@@ -31,9 +37,10 @@ public class EchoServer extends AbstractServer
    *
    * @param port The port number to connect on.
    */
-  public EchoServer(int port) 
+  public EchoServer(int port,ChatIF serverUI) 
   {
     super(port);
+    this.serverUI = serverUI;
   }
 
   
@@ -48,8 +55,13 @@ public class EchoServer extends AbstractServer
   public void handleMessageFromClient
     (Object msg, ConnectionToClient client)
   {
-    System.out.println("Message received: " + msg + " from " + client);
-    this.sendToAllClients(msg);
+	if(msg.toString().indexOf("#login")!=-1) {
+		String id1;
+		id1 = msg.toString().substring(7,msg.toString().indexOf(">"));
+		setInfo(id1);
+	}
+    System.out.println("Message received "+"from "+ClientInfo +":"+ msg + " from " + client);
+    this.sendToAllClients(getInfo()+":"+msg);
   }
     
   /**
@@ -60,6 +72,7 @@ public class EchoServer extends AbstractServer
   {
     System.out.println
       ("Server listening for connections on port " + getPort());
+    ifClosed = false;
   }
   
   /**
@@ -70,8 +83,15 @@ public class EchoServer extends AbstractServer
   {
     System.out.println
       ("Server has stopped listening for connections.");
+    ifClosed = true;
   }
   
+  public void setInfo(String ID) {
+	  ClientInfo = ID;
+  }
+  public String getInfo() {
+	  return ClientInfo;
+  }
   //Class methods ***************************************************
   
   /**
@@ -81,29 +101,66 @@ public class EchoServer extends AbstractServer
    * @param args[0] The port number to listen on.  Defaults to 5555 
    *          if no argument is entered.
    */
-  public static void main(String[] args) 
+//  public static void main(String[] args) 
+//  {
+  //    int port = 0; //Port to listen on
+  //
+  //    try
+  //   {
+  //     port = Integer.parseInt(args[0]); //Get port from command line
+  //   }
+  //   catch(Throwable t)
+  //   {
+  //    port = DEFAULT_PORT; //Set port to 5555
+  //   }
+  //
+  //  EchoServer sv = new EchoServer(port);
+  //  
+  //  try 
+  //  {
+  //    sv.listen(); //Start listening for connections
+  //  } 
+  //  catch (Exception ex) 
+  //  {
+  //    System.out.println("ERROR - Could not listen for clients!");
+  // }
+  // }
+  
+  protected void clientConnected(ConnectionToClient client) {
+	  System.out.println("A client connected");
+  }
+  
+  synchronized protected void clientDisconnected(
+		    ConnectionToClient client) {
+	  System.out.println("A client disconnected");
+  }
+  
+  
+  public void handleMessageFromServerUI(String message)
   {
-    int port = 0; //Port to listen on
-
+	
     try
     {
-      port = Integer.parseInt(args[0]); //Get port from command line
+    sendToAllClients("SERVER MSG>"+message);
+    serverUI.display(message);
     }
-    catch(Throwable t)
+    catch(Exception e)
     {
-      port = DEFAULT_PORT; //Set port to 5555
-    }
-	
-    EchoServer sv = new EchoServer(port);
-    
-    try 
-    {
-      sv.listen(); //Start listening for connections
-    } 
-    catch (Exception ex) 
-    {
-      System.out.println("ERROR - Could not listen for clients!");
+      serverUI.display
+        ("Could not send message to server.");
+      
     }
   }
+  
+  protected void connectionClosed() {
+	  ifClosed = true;
+  }
+
+
+
 }
+
+
+
+
 //End of EchoServer class

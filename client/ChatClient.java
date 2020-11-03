@@ -20,7 +20,7 @@ import java.io.*;
 public class ChatClient extends AbstractClient
 {
   //Instance variables **********************************************
-  
+   public String loginID;
   /**
    * The interface type variable.  It allows the implementation of 
    * the display method in the client.
@@ -38,11 +38,12 @@ public class ChatClient extends AbstractClient
    * @param clientUI The interface type variable.
    */
   
-  public ChatClient(String host, int port, ChatIF clientUI) 
+  public ChatClient(String loginID,String host, int port, ChatIF clientUI) 
     throws IOException 
   {
     super(host, port); //Call the superclass constructor
     this.clientUI = clientUI;
+    this.loginID  = loginID;
     openConnection();
   }
 
@@ -90,5 +91,16 @@ public class ChatClient extends AbstractClient
     catch(IOException e) {}
     System.exit(0);
   }
+  
+  protected void connectionClosed() {
+	  clientUI.display
+	  ("Quitting");
+	  
+  }
+  
+  protected void connectionException(Exception exception) {
+	  clientUI.display("The server has shut down");
+	  quit();
+	}
 }
 //End of ChatClient class
