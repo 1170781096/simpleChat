@@ -16,7 +16,7 @@ public class ServerConsole implements ChatIF {
 	  //Instance variables **********************************************
 	  
 	  /**
-	   * The instance of the client that created this ConsoleChat.
+	   * The instance of the server that created this ConsoleChat.
 	   */
 	  EchoServer server;
 	  
@@ -32,9 +32,9 @@ public class ServerConsole implements ChatIF {
 	  //Constructors ****************************************************
 
 	  /**
-	   * Constructs an instance of the ClientConsole UI.
+	   * Constructs an instance of the ServerConsole UI.
 	   *
-	   * @param host The host to connect to.
+	   * 
 	   * @param port The port to connect on.
 	   */
 	  public ServerConsole(int port) 
